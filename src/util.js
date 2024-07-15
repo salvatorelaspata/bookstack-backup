@@ -1,4 +1,4 @@
-import { mkdir } from 'fs/promises';
+import { mkdir, writeFile } from 'fs/promises';
 
 export async function createDirectoryIfNotExists(dirPath) {
   try {
@@ -11,6 +11,18 @@ export async function createDirectoryIfNotExists(dirPath) {
     }
     // Se la directory esiste già, non facciamo nulla
     console.log(`La directory esiste già: ${dirPath}`);
+  }
+}
+
+export async function writeFileIfNotExists(filePath, data, encoding = 'utf-8') {
+  try {
+    await writeFile(filePath, data.toString(), { encoding: encoding });
+    console.log(`File creato: ${filePath}`);
+  } catch (error) {
+    if(error.code !== 'EEXIST') {
+      console.error(`Errore durante la creazione del file: ${error.message}`);
+      throw error;
+    }
   }
 }
 

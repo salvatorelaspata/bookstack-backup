@@ -1,70 +1,65 @@
-import { config as  dotenvConfig } from 'dotenv';
-import { request } from 'undici';
-import { exportType } from './util.js';
+import { config as dotenvConfig } from "dotenv";
+import { request } from "undici";
+import { exportType } from "./util.js";
+import { createWriteStream } from 'fs';
 
 dotenvConfig();
 
-const {BOOKSTACK_URL,BOOKSTACK_TOKEN,BOOKSTACK_SECRET} = process.env;
+const { BOOKSTACK_URL, BOOKSTACK_TOKEN, BOOKSTACK_SECRET } = process.env;
 
 // Crea l'istanza del client
 export const config = {
   url: BOOKSTACK_URL,
   headers: {
-    'Authorization': `Token ${BOOKSTACK_TOKEN}:${BOOKSTACK_SECRET}`,
-    'Content-Type': 'application/json'
-  }
-}
+    Authorization: `Token ${BOOKSTACK_TOKEN}:${BOOKSTACK_SECRET}`
+  },
+};
 
-export const makeRequest = async (url, method = 'GET', headers = {}, body = null, type = 'json') => {
+export const makeRequest = async ({
+  url,
+  method = "GET",
+  headers = null,
+  body = null,
+  type = "json",
+}) => {
   try {
-    console.log('Request url:', url);
+    const h = { ...config.headers, ...headers };
     const response = await request(`${config.url}${url}`, {
       method,
-      headers: {...config.headers, ...headers},
-      body
+      headers: h,
+      body,
     });
-    
-    console.log('Response:', response.statusCode, await response.body.text());
-    if(response.statusCode !== 200 && response.statusCode !== 302) {
-      throw new Error(`Request failed with status code ${response.statusCode}`);
-    }
-
-    if(type === 'json') {
-      const json = await response.body.json();
-      return json;
-    } 
-
-    const text = await response.body.text();
-    return text;
-
+    console.log('url:', url);
+    console.log('type:', type);
+    console.log('response.body[type]:', response.body[type]);
+    return response.body[type]();
   } catch (error) {
     console.error(error);
   }
-}
+};
 
-export const get = async (url) => {
+export const get = async ({ url }) => {
   try {
-    const response = await makeRequest(url);
+    const response = await makeRequest({ url });
     return response;
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
   }
-}
+};
 
-export const exportFiles = async (id, type) => {
+export const exportFile = async ({ id, section, type, path }) => {
   try {
-    const exports = !type ? Object.values(exportType) : [exportType[type]];
-
-    const files = []
-    for (const e of exports) {
-      const file = await makeRequest(`/api/books/${id}/export/${e.endpoint}`, 'GET', {
-        'Content-Type': e.contentType
-      }, null, 'text');
-      files.push(file);
-    }
-
-    return files;
+    const e = exportType[type];
+    const url = `${config.url}/api/${section}/${id}/export/${e.endpoint}`
+    console.log('url:', url);
+    const response = await request(url, {
+      method: 'GET',
+      headers: config.headers
+    });
+    const fileStream = createWriteStream(path)
+    response.body.pipe(fileStream)
+    console.log('File saved:', path)
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
   }
-}
+};
