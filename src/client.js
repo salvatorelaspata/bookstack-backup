@@ -2,6 +2,7 @@ import { config as dotenvConfig } from "dotenv";
 import { request } from "undici";
 import { exportType } from "./util.js";
 import { createWriteStream } from 'fs';
+import { writeFile } from "fs/promises";
 
 dotenvConfig();
 
@@ -15,33 +16,17 @@ export const config = {
   },
 };
 
-export const makeRequest = async ({
-  url,
-  method = "GET",
-  headers = null,
-  body = null,
-  type = "json",
-}) => {
+export const get = async ({ url, path }) => {
   try {
-    const h = { ...config.headers, ...headers };
+    const h ={...config.headers, 'Content-Type': 'application/json'}
     const response = await request(`${config.url}${url}`, {
-      method,
-      headers: h,
-      body,
+      method: 'GET',
+      headers: h
     });
-    console.log('url:', url);
-    console.log('type:', type);
-    console.log('response.body[type]:', response.body[type]);
-    return response.body[type]();
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-export const get = async ({ url }) => {
-  try {
-    const response = await makeRequest({ url });
-    return response;
+    // write on disk
+    const body = await response.body.json();
+    await writeFile(path, JSON.stringify(body, null, 2));
+    return body;
   } catch (error) {
     console.error("Error:", error);
   }
@@ -51,14 +36,12 @@ export const exportFile = async ({ id, section, type, path }) => {
   try {
     const e = exportType[type];
     const url = `${config.url}/api/${section}/${id}/export/${e.endpoint}`
-    console.log('url:', url);
     const response = await request(url, {
       method: 'GET',
       headers: config.headers
     });
     const fileStream = createWriteStream(path)
     response.body.pipe(fileStream)
-    console.log('File saved:', path)
   } catch (error) {
     console.error("Error:", error);
   }

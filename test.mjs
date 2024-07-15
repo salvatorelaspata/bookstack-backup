@@ -29,6 +29,25 @@ const fetchPdf = async (url, filename) => {
 }
 
 // test
-const url = `${config.url}/api/books/2/export/pdf`
-const filename = 'book-2.pdf'
-fetchPdf(url, filename)
+// const url = `${config.url}/api/books/2/export/pdf`
+// const filename = 'book-2.pdf'
+// fetchPdf(url, filename)
+
+const fetchJson = async (url, filename) => {
+  try {
+    const response = await request(url, {
+      method: 'GET',
+      headers: config.headers
+    });
+    const body = await response.body.json();
+    fs.writeFileSync(filename, JSON.stringify(body, null, 2));
+    console.log('File saved:', filename)
+  }
+  catch (error) {
+    console.error('Error:', error)
+  }
+}
+
+const url2 = `${config.url}/api/books/2`
+const filename2 = 'book-2.json'
+fetchJson(url2, filename2)
