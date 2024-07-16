@@ -2,8 +2,8 @@ import { get } from "./client.js";
 
 
 /* DOCS */
-export async function getDocs() {
-  return await get({ url: "/api/docs" });
+export async function getDocs(dir) {
+  return await get({ url: "/api/docs.json", path: `${dir}/docs.json` });
 }
 
 /* BOOKS */
@@ -20,6 +20,10 @@ export const getChapters = async (dir) => {
   return await get({ url: "/api/chapters", path: `${dir}/chapters.json` });
 };
 
+export const getChapterById = async ({id, path}) => {
+  return await get({ url: `/api/chapters/${id}`, path });
+}
+
 /* PAGES */
 export const getPages = async (dir) => {
   return await get({ url: "/api/pages", path: `${dir}/pages.json` });
@@ -35,24 +39,24 @@ export const getShelves = async (dir) => {
   return await get({ url: "/api/shelves", path: `${dir}/shelves.json` });
 };
 
-export const getShelfById = async (id) => {
-  return await get({ url: `/api/shelves/${id}` });
+export const getShelfById = async ({id, path}) => {
+  return await get({ url: `/api/shelves/${id}`, path });
 };
 
 /* IMAGE GALLERY */
-export const getImages = async () => {
-  return await get({ url: "/api/images-gallery" });
-};
+// export const getImages = async () => {
+//   return await get({ url: "/api/images-gallery" });
+// };
 
-export const getImageById = async (id) => {
-  return await get({ url: `/api/images-gallery/${id}` });
-};
+// export const getImageById = async (id) => {
+//   return await get({ url: `/api/images-gallery/${id}` });
+// };
 
 /* ATTACHMENTS */
-export const getAttachments = async () => {
-  return await get({ url: "/api/attachments" });
+export const getAttachments = async (dir) => {
+  return await get({ url: "/api/attachments", path: `${dir}/attachments.json` });
 };
 
-export const getAttachmentById = async (id) => {
-  return await get({ url: `/api/attachments/${id}` });
+export const getAttachmentById = async ({id, path}) => {
+  return await get({ url: `/api/attachments/${id}`, path });
 };

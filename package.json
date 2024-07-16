@@ -1,5 +1,13 @@
 {
   "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "backup:books": "node server.js -- books",
+    "backup:pages": "node server.js -- pages",
+    "backup:chapters": "node server.js -- chapters",
+    "backup:shelves": "node server.js -- shelves",
+    "backup:attachments": "node server.js -- attachments"
+  },
   "dependencies": {
     "dotenv": "^16.4.5",
     "undici": "^6.19.2"
