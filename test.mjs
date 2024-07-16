@@ -29,9 +29,9 @@ const fetchPdf = async (url, filename) => {
 }
 
 // test
-// const url = `${config.url}/api/books/2/export/pdf`
-// const filename = 'book-2.pdf'
-// fetchPdf(url, filename)
+const url = `${config.url}/api/books/2/export/pdf`
+const filename = 'book-2.pdf'
+fetchPdf(url, filename)
 
 const fetchJson = async (url, filename) => {
   try {

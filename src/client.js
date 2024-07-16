@@ -23,6 +23,12 @@ export const get = async ({ url, path }) => {
       method: 'GET',
       headers: h
     });
+
+    if(response.statusCode !== 200) {
+      console.error("Error:", response.statusCode);
+      return;
+    }
+
     // write on disk
     const body = await response.body.json();
     await writeFile(path, JSON.stringify(body, null, 2));
